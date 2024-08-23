@@ -27,7 +27,7 @@ export default class MonitorServer {
 
   private async startServer(): Promise<void> {
     try {
-      const SERVER_PORT: number = parseInt(PORT!, 10) || 5000;
+      const SERVER_PORT: number = parseInt(PORT!, 10) || 5001;
       console.info(`Server has started with process id ${process.pid}`);
       this.httpServer.listen(SERVER_PORT, () => {
         console.info(`Server running on port ${SERVER_PORT}`);
