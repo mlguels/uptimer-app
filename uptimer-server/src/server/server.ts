@@ -1,12 +1,28 @@
 import http from "http";
 
-import { Express, NextFunction, Request, Response } from "express";
-import { NODE_ENV, PORT } from "./config";
+import {
+  Express,
+  json,
+  NextFunction,
+  Request,
+  Response,
+  urlencoded,
+} from "express";
+import {
+  CLIENT_URL,
+  NODE_ENV,
+  PORT,
+  SECRET_KEY_ONE,
+  SECRET_KEY_TWO,
+} from "./config";
 import { ApolloServer } from "@apollo/server";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { ApolloServerPluginLandingPageDisabled } from "@apollo/server/plugin/disabled";
 import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import cors from "cors";
+import { expressMiddleware } from "@apollo/server/express4";
+import cookieSession from "cookie-session";
 
 const typeDefs = `#graphql
   type User {
@@ -63,6 +79,35 @@ export default class MonitorServer {
       res.header("Cache-Control", "no-cache, no store, must-revalidate");
       next();
     });
+    app.use(
+      cookieSession({
+        name: "session",
+        keys: [SECRET_KEY_ONE, SECRET_KEY_TWO],
+        maxAge: 24 * 7 * 3600000,
+        secure: NODE_ENV !== "development",
+        ...(NODE_ENV !== "development" && {
+          sameSite: "none",
+        }),
+      })
+    );
+    this.graphqlRoute(app);
+  }
+
+  private graphqlRoute(app: Express): void {
+    app.use(
+      "/graphql",
+      cors({
+        origin: CLIENT_URL,
+        credentials: true,
+      }),
+      json({ limit: "200mb" }),
+      urlencoded({ extended: true, limit: "200mb" }),
+      expressMiddleware(this.server, {
+        context: async ({ req, res }: { req: Request; res: Response }) => {
+          return { req, res };
+        },
+      })
+    );
   }
 
   private async startServer(): Promise<void> {
