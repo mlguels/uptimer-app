@@ -1,4 +1,6 @@
 import http from "http";
+import cors from "cors";
+import cookieSession from "cookie-session";
 
 import {
   Express,
@@ -8,6 +10,14 @@ import {
   Response,
   urlencoded,
 } from "express";
+
+import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { ApolloServerPluginLandingPageDisabled } from "@apollo/server/plugin/disabled";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { expressMiddleware } from "@apollo/server/express4";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+
 import {
   CLIENT_URL,
   NODE_ENV,
@@ -15,14 +25,6 @@ import {
   SECRET_KEY_ONE,
   SECRET_KEY_TWO,
 } from "./config";
-import { ApolloServer } from "@apollo/server";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import { ApolloServerPluginLandingPageDisabled } from "@apollo/server/plugin/disabled";
-import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
-import cors from "cors";
-import { expressMiddleware } from "@apollo/server/express4";
-import cookieSession from "cookie-session";
 
 const typeDefs = `#graphql
   type User {
