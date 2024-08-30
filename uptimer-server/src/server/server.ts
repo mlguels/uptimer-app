@@ -25,6 +25,7 @@ import {
   SECRET_KEY_ONE,
   SECRET_KEY_TWO,
 } from "./config";
+import logger from "./logger";
 
 const typeDefs = `#graphql
   type User {
@@ -146,12 +147,12 @@ export default class MonitorServer {
   private async startServer(): Promise<void> {
     try {
       const SERVER_PORT: number = parseInt(PORT!, 10) || 5001; // Determines the port to listen on
-      console.info(`Server has started with process id ${process.pid}`);
+      logger.info(`Server has started with process id ${process.pid}`);
       this.httpServer.listen(SERVER_PORT, () => {
-        console.info(`Server running on port ${SERVER_PORT}`); // Logs that the server is running
+        logger.info(`Server running on port ${SERVER_PORT}`); // Logs that the server is running
       });
     } catch (error) {
-      console.error("error", "startServer() error method:", error); // Logs any errors that occur
+      logger.error("error", "startServer() error method:", error); // Logs any errors that occur
     }
   }
 }
