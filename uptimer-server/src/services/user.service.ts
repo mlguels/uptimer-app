@@ -30,7 +30,7 @@ export async function getUserByUsernameOrEmail(
           { email: toLower(email) },
         ],
       },
-    })) as unknown as IUserDocument | undefined;
+    })) as unknown as IUserDocument;
     return user;
   } catch (error) {
     throw new Error(error);
@@ -60,7 +60,7 @@ export async function getUserBySocialId(
           { email: toLower(email) },
         ],
       },
-    })) as unknown as IUserDocument | undefined;
+    })) as unknown as IUserDocument;
     return user;
   } catch (error) {
     throw new Error(error);
@@ -88,7 +88,7 @@ export async function getUserByProp(
           },
         ],
       },
-    })) as unknown as IUserDocument | undefined;
+    })) as unknown as IUserDocument;
     return user;
   } catch (error) {
     throw new Error(error);
