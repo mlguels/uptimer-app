@@ -26,16 +26,8 @@ import {
   SECRET_KEY_TWO,
 } from "./config";
 import logger from "./logger";
-
-const typeDefs = `#graphql
-  type User {
-    username: String
-  }
-
-  type Query {
-    user: User
-  }
-`;
+import { mergedGQLSchema } from "@app/graphql/schema";
+import { GraphQLSchema } from "graphql";
 
 const resolvers = {
   Query: {
@@ -58,7 +50,10 @@ export default class MonitorServer {
     // this stores the HTTP server instance created using the express app
     this.httpServer = new http.Server(app);
     // this creates the GraphQL schema
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
+    const schema: GraphQLSchema = makeExecutableSchema({
+      typeDefs: mergedGQLSchema,
+      resolvers,
+    });
     // this stores the apollo server instance, which is responsible for handling GraphQL operations
     this.server = new ApolloServer({
       schema, // Assigns the created schema to the apollo server
