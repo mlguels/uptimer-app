@@ -28,6 +28,7 @@ import {
 import logger from "./logger";
 import { mergedGQLSchema } from "@app/graphql/schema";
 import { GraphQLSchema } from "graphql";
+import { BaseContext } from "@apollo/server";
 
 const resolvers = {
   Query: {
@@ -38,6 +39,11 @@ const resolvers = {
     },
   },
 };
+
+export interface AppContext {
+  req: Request;
+  res: Response;
+}
 
 export default class MonitorServer {
   private app: Express;
@@ -55,7 +61,7 @@ export default class MonitorServer {
       resolvers,
     });
     // this stores the apollo server instance, which is responsible for handling GraphQL operations
-    this.server = new ApolloServer({
+    this.server = new ApolloServer<AppContext | BaseContext>({
       schema, // Assigns the created schema to the apollo server
       introspection: NODE_ENV !== "production", // Allows introspection in non-production environments
       // sets up plugins for the apollo server
