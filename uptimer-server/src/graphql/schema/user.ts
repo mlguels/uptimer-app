@@ -18,7 +18,7 @@ export const userSchema = buildSchema(`#graphql
       facebookId: String
     }
 
-    input NotificationResult {
+    type NotificationResult {
       id: ID!
       userId: Int!
       groupName: String!

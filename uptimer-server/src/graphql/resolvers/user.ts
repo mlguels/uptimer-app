@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import { toLower, upperFirst } from "lodash";
 import { sign } from "jsonwebtoken";
+import { Request } from "express";
 
 import { AppContext } from "@app/server/server";
 import { JTW_TOKEN } from "@app/server/config";
