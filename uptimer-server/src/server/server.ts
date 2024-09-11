@@ -2,14 +2,7 @@ import http from "http";
 import cors from "cors";
 import cookieSession from "cookie-session";
 
-import {
-  Express,
-  json,
-  NextFunction,
-  Request,
-  Response,
-  urlencoded,
-} from "express";
+import { Express, json, NextFunction, Request, Response, urlencoded } from "express";
 
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -18,13 +11,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin
 import { expressMiddleware } from "@apollo/server/express4";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
-import {
-  CLIENT_URL,
-  NODE_ENV,
-  PORT,
-  SECRET_KEY_ONE,
-  SECRET_KEY_TWO,
-} from "./config";
+import { CLIENT_URL, NODE_ENV, PORT, SECRET_KEY_ONE, SECRET_KEY_TWO } from "./config";
 import logger from "./logger";
 import { mergedGQLSchema } from "@app/graphql/schema";
 import { GraphQLSchema } from "graphql";

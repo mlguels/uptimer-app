@@ -10,24 +10,19 @@ import {
   createNotificationGroup,
   getAllNotificationGroups,
 } from "@app/services/notification.service";
-import {
-  createNewUser,
-  getUserByUsernameOrEmail,
-} from "@app/services/user.service";
+import { createNewUser, getUserByUsernameOrEmail } from "@app/services/user.service";
 
 export const UserResolver = {
   Mutation: {
-    async registerUser(
-      _: undefined,
-      args: { user: IUserDocument },
-      contextValue: AppContext
-    ) {
+    async registerUser(_: undefined, args: { user: IUserDocument }, contextValue: AppContext) {
       const { req } = contextValue;
       const { user } = args;
       // TODO: Add data validation
       const { username, email, password } = user;
-      const checkIfUserExist: IUserDocument | undefined =
-        await getUserByUsernameOrEmail(username!, email!);
+      const checkIfUserExist: IUserDocument | undefined = await getUserByUsernameOrEmail(
+        username!,
+        email!
+      );
       if (checkIfUserExist) {
         throw new GraphQLError("Invalid credentials. Email or username.");
       }
@@ -37,11 +32,7 @@ export const UserResolver = {
         password,
       } as IUserDocument;
       const result: IUserDocument | undefined = await createNewUser(authData);
-      const response: IUserResponse = await userReturnValue(
-        req,
-        result,
-        "register"
-      );
+      const response: IUserResponse = await userReturnValue(req, result, "register");
       return response;
     },
   },

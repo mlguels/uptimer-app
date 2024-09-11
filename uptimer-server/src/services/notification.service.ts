@@ -17,32 +17,28 @@ export async function getSingleNotificationGroup(
   notificationId: string
 ): Promise<INotificationDocument> {
   try {
-    const notification: INotificationDocument =
-      (await NotificationModel.findOne({
-        raw: true,
-        where: {
-          id: notificationId,
-        },
-        order: ["createAt", "DESC"],
-      })) as unknown as INotificationDocument;
+    const notification: INotificationDocument = (await NotificationModel.findOne({
+      raw: true,
+      where: {
+        id: notificationId,
+      },
+      order: ["createAt", "DESC"],
+    })) as unknown as INotificationDocument;
     return notification;
   } catch (error) {
     throw new Error(error);
   }
 }
 
-export async function getAllNotificationGroups(
-  userId: string
-): Promise<INotificationDocument[]> {
+export async function getAllNotificationGroups(userId: string): Promise<INotificationDocument[]> {
   try {
-    const notification: INotificationDocument[] =
-      (await NotificationModel.findAll({
-        raw: true,
-        where: {
-          userId,
-        },
-        order: ["createAt", "DESC"],
-      })) as unknown as INotificationDocument[];
+    const notification: INotificationDocument[] = (await NotificationModel.findAll({
+      raw: true,
+      where: {
+        userId,
+      },
+      order: ["createAt", "DESC"],
+    })) as unknown as INotificationDocument[];
     return notification;
   } catch (error) {
     throw new Error(error);
@@ -62,9 +58,7 @@ export async function updateNotificationGroup(
   }
 }
 
-export async function deleteNotificationGroup(
-  notificationId: string
-): Promise<void> {
+export async function deleteNotificationGroup(notificationId: string): Promise<void> {
   try {
     await NotificationModel.destroy({
       where: { id: notificationId },
