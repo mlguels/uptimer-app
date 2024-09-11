@@ -29,16 +29,7 @@ import logger from "./logger";
 import { mergedGQLSchema } from "@app/graphql/schema";
 import { GraphQLSchema } from "graphql";
 import { BaseContext } from "@apollo/server";
-
-const resolvers = {
-  Query: {
-    user() {
-      return {
-        username: "Danny",
-      };
-    },
-  },
-};
+import { resolvers } from "@app/graphql/resolvers";
 
 export interface AppContext {
   req: Request;

@@ -29,5 +29,5 @@ export interface IUserDocument {
 
 export interface IUserResponse {
   user: IUserDocument;
-  notification: INotificationDocument[];
+  notifications: INotificationDocument[];
 }
