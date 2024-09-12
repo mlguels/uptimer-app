@@ -10,11 +10,41 @@ import {
   createNotificationGroup,
   getAllNotificationGroups,
 } from "@app/services/notification.service";
-import { createNewUser, getUserByUsernameOrEmail } from "@app/services/user.service";
+import { createNewUser, getUserByProp, getUserByUsernameOrEmail } from "@app/services/user.service";
 import { JWT_TOKEN } from "@app/server/config";
+import { isEmail } from "@app/utils/utils";
+import { UserModel } from "@app/models/user.model";
 
 export const UserResolver = {
   Mutation: {
+    async loginUser(
+      _: undefined,
+      args: { username: string; password: string },
+      contextValue: AppContext
+    ) {
+      const { req } = contextValue;
+      const { username, password } = args;
+      // TODO: validate
+      const isValidEmail = isEmail(username);
+      const type: string = !isValidEmail ? "username" : "email";
+      const existingUser: IUserDocument | undefined = await getUserByProp(username, type);
+
+      if (!existingUser) {
+        throw new GraphQLError("Invalid credentials");
+      }
+
+      const passwordsMatch: boolean = await UserModel.prototype.comparePassword(
+        password,
+        existingUser.password!
+      );
+
+      if (!passwordsMatch) {
+        throw new GraphQLError("Invalid credentials");
+      }
+
+      const response: IUserResponse = await userReturnValue(req, existingUser, "login");
+      return response;
+    },
     async registerUser(_: undefined, args: { user: IUserDocument }, contextValue: AppContext) {
       const { req } = contextValue;
       const { user } = args;
