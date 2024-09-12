@@ -22,7 +22,7 @@ export async function getSingleNotificationGroup(
       where: {
         id: notificationId,
       },
-      order: ["createAt", "DESC"],
+      order: ["createdAt", "DESC"],
     })) as unknown as INotificationDocument;
     return notification;
   } catch (error) {
@@ -37,7 +37,7 @@ export async function getAllNotificationGroups(userId: number): Promise<INotific
       where: {
         userId,
       },
-      order: ["createAt", "DESC"],
+      order: ["createdAt"],
     })) as unknown as INotificationDocument[];
     return notification;
   } catch (error) {
