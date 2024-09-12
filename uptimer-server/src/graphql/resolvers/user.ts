@@ -10,7 +10,12 @@ import {
   createNotificationGroup,
   getAllNotificationGroups,
 } from "@app/services/notification.service";
-import { createNewUser, getUserByProp, getUserByUsernameOrEmail } from "@app/services/user.service";
+import {
+  createNewUser,
+  getUserByProp,
+  getUserBySocialId,
+  getUserByUsernameOrEmail,
+} from "@app/services/user.service";
 import { JWT_TOKEN } from "@app/server/config";
 import { isEmail } from "@app/utils/utils";
 import { UserModel } from "@app/models/user.model";
@@ -70,6 +75,36 @@ export const UserResolver = {
       const result: IUserDocument | undefined = await createNewUser(authData);
       const response: IUserResponse = await userReturnValue(req, result, "register");
       return response;
+    },
+    async authSocialUser(_: undefined, args: { user: IUserDocument }, contextValue: AppContext) {
+      const { req } = contextValue;
+      const { user } = args;
+      // TODO: Add data validation
+      const { username, email, socialId, type } = user;
+      const checkIfUserExist: IUserDocument | undefined = await getUserBySocialId(
+        socialId!,
+        email!,
+        type!
+      );
+
+      if (checkIfUserExist) {
+        const response: IUserResponse = await userReturnValue(req, checkIfUserExist, "login");
+        return response;
+      } else {
+        const authData: IUserDocument = {
+          username: upperFirst(username),
+          email: toLower(email),
+          ...(type === "facebook" && {
+            facebookId: socialId,
+          }),
+          ...(type === "googleId" && {
+            googleId: socialId,
+          }),
+        } as IUserDocument;
+        const result: IUserDocument | undefined = await createNewUser(authData);
+        const response: IUserResponse = await userReturnValue(req, result, "register");
+        return response;
+      }
     },
   },
   User: {
