@@ -25,8 +25,6 @@ export const UserResolver = {
         email!
       );
 
-      console.log("checkIfUserExist:", checkIfUserExist);
-
       // if (checkIfUserExist) {
       //   throw new GraphQLError("Invalid credentials. Email or username.");
       // }
@@ -44,9 +42,9 @@ export const UserResolver = {
       return response;
     },
   },
-  // User: {
-  //   createAt: (user: IUserDocument) => new Date(user.createdAt!).toISOString(),
-  // },
+  User: {
+    createdAt: (user: IUserDocument) => new Date(user.createdAt!).toISOString(),
+  },
 };
 
 async function userReturnValue(
@@ -85,6 +83,7 @@ async function userReturnValue(
     id: result.id,
     email: result.email,
     username: result.username,
+    createdAt: result.createdAt,
   } as IUserDocument;
 
   return {
