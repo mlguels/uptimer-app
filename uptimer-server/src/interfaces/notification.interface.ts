@@ -3,7 +3,7 @@ export interface INotificationDocument {
   userId: number;
   groupName: string;
   emails: string;
-  createdAt: Date;
+  createdAt?: Date;
 }
 
 export interface IEmailLocals {

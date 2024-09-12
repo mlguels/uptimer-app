@@ -23,11 +23,13 @@ export interface IUserDocument {
   email?: string;
   password?: string;
   createdAt?: Date;
+  socialId?: string;
+  type?: string;
   comparePassword(password: string, hashedPassword: string): Promise<boolean>;
   hashPassword(password: string): Promise<string>;
 }
 
 export interface IUserResponse {
   user: IUserDocument;
-  notification: INotificationDocument[];
+  notifications: INotificationDocument[];
 }

@@ -2,14 +2,7 @@ import http from "http";
 import cors from "cors";
 import cookieSession from "cookie-session";
 
-import {
-  Express,
-  json,
-  NextFunction,
-  Request,
-  Response,
-  urlencoded,
-} from "express";
+import { Express, json, NextFunction, Request, Response, urlencoded } from "express";
 
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -18,34 +11,17 @@ import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin
 import { expressMiddleware } from "@apollo/server/express4";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
-import {
-  CLIENT_URL,
-  NODE_ENV,
-  PORT,
-  SECRET_KEY_ONE,
-  SECRET_KEY_TWO,
-} from "./config";
+import { CLIENT_URL, NODE_ENV, PORT, SECRET_KEY_ONE, SECRET_KEY_TWO } from "./config";
 import logger from "./logger";
+import { mergedGQLSchema } from "@app/graphql/schema";
+import { GraphQLSchema } from "graphql";
+import { BaseContext } from "@apollo/server";
+import { resolvers } from "@app/graphql/resolvers";
 
-const typeDefs = `#graphql
-  type User {
-    username: String
-  }
-
-  type Query {
-    user: User
-  }
-`;
-
-const resolvers = {
-  Query: {
-    user() {
-      return {
-        username: "Danny",
-      };
-    },
-  },
-};
+export interface AppContext {
+  req: Request;
+  res: Response;
+}
 
 export default class MonitorServer {
   private app: Express;
@@ -58,9 +34,12 @@ export default class MonitorServer {
     // this stores the HTTP server instance created using the express app
     this.httpServer = new http.Server(app);
     // this creates the GraphQL schema
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
+    const schema: GraphQLSchema = makeExecutableSchema({
+      typeDefs: mergedGQLSchema,
+      resolvers,
+    });
     // this stores the apollo server instance, which is responsible for handling GraphQL operations
-    this.server = new ApolloServer({
+    this.server = new ApolloServer<AppContext | BaseContext>({
       schema, // Assigns the created schema to the apollo server
       introspection: NODE_ENV !== "production", // Allows introspection in non-production environments
       // sets up plugins for the apollo server
