@@ -4,7 +4,6 @@ import { toLower, upperFirst } from "lodash";
 import { sign } from "jsonwebtoken";
 
 import { AppContext } from "@app/server/server";
-import { JTW_TOKEN } from "@app/server/config";
 import { INotificationDocument } from "@app/interfaces/notification.interface";
 import { IUserDocument, IUserResponse } from "@app/interfaces/user.interface";
 import {
@@ -12,6 +11,7 @@ import {
   getAllNotificationGroups,
 } from "@app/services/notification.service";
 import { createNewUser, getUserByUsernameOrEmail } from "@app/services/user.service";
+import { JWT_TOKEN } from "@app/server/config";
 
 export const UserResolver = {
   Mutation: {
@@ -24,8 +24,15 @@ export const UserResolver = {
         username!,
         email!
       );
+
+      console.log("checkIfUserExist:", checkIfUserExist);
+
+      // if (checkIfUserExist) {
+      //   throw new GraphQLError("Invalid credentials. Email or username.");
+      // }
       if (checkIfUserExist) {
-        throw new GraphQLError("Invalid credentials. Email or username.");
+        const existingUserMessage = `User with username ${username} or email ${email} already exists.`;
+        throw new GraphQLError(existingUserMessage);
       }
       const authData: IUserDocument = {
         username: upperFirst(username),
@@ -37,6 +44,9 @@ export const UserResolver = {
       return response;
     },
   },
+  // User: {
+  //   createAt: (user: IUserDocument) => new Date(user.createdAt!).toISOString(),
+  // },
 };
 
 async function userReturnValue(
@@ -56,13 +66,17 @@ async function userReturnValue(
     notifications = await getAllNotificationGroups(result.id);
   }
 
+  if (!JWT_TOKEN) {
+    throw new Error("JWT_TOKEN is not defined");
+  }
+
   const userJwt: string = sign(
     {
       id: result.id,
       email: result.email,
       username: result.username,
     },
-    JTW_TOKEN
+    JWT_TOKEN
   );
 
   req.session = { jwt: userJwt, enableAutomaticRefresh: false };
