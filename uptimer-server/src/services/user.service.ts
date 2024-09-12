@@ -3,14 +3,10 @@ import { omit, toLower, upperFirst } from "lodash";
 import { IUserDocument } from "@app/interfaces/user.interface";
 import { UserModel } from "@app/models/user.model";
 
-export async function createNewUser(
-  data: IUserDocument
-): Promise<IUserDocument> {
+export async function createNewUser(data: IUserDocument): Promise<IUserDocument> {
   try {
     const result: Model = await UserModel.create(data);
-    const userData: IUserDocument = omit(result.dataValues, [
-      "password",
-    ]) as IUserDocument;
+    const userData: IUserDocument = omit(result.dataValues, ["password"]) as IUserDocument;
     return userData;
   } catch (error) {
     throw new Error(error);
@@ -25,10 +21,7 @@ export async function getUserByUsernameOrEmail(
     const user: IUserDocument | undefined = (await UserModel.findOne({
       raw: true,
       where: {
-        [Op.or]: [
-          { username: upperFirst(username) },
-          { email: toLower(email) },
-        ],
+        [Op.or]: [{ username: upperFirst(username) }, { email: toLower(email) }],
       },
     })) as unknown as IUserDocument;
     return user;
@@ -67,10 +60,7 @@ export async function getUserBySocialId(
   }
 }
 
-export async function getUserByProp(
-  prop: string,
-  type: string
-): Promise<IUserDocument> {
+export async function getUserByProp(prop: string, type: string): Promise<IUserDocument> {
   try {
     const user: IUserDocument | undefined = (await UserModel.findOne({
       raw: true,
