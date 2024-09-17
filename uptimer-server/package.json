@@ -29,7 +29,8 @@
     "pino-pretty": "^11.2.2",
     "sequelize": "^6.37.3",
     "typescript": "^5.5.4",
-    "typescript-transform-paths": "^3.4.11"
+    "typescript-transform-paths": "^3.4.11",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
