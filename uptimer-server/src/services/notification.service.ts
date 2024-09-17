@@ -51,7 +51,7 @@ export async function updateNotificationGroup(notificationId: number, data: INot
   }
 }
 
-export async function deleteNotificationGroup(notificationId: string): Promise<void> {
+export async function deleteNotificationGroup(notificationId: number): Promise<void> {
   try {
     await NotificationModel.destroy({
       where: { id: notificationId },
