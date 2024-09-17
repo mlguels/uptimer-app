@@ -17,23 +17,22 @@ import {
   getUserByUsernameOrEmail,
 } from "@app/services/user.service";
 import { JWT_TOKEN } from "@app/server/config";
-import { isEmail } from "@app/utils/utils";
+import { authenticateGraphQLRoute, isEmail } from "@app/utils/utils";
 import { UserModel } from "@app/models/user.model";
+import logger from "@app/server/logger";
 
 export const UserResolver = {
   Query: {
     async checkCurrentUser(_: undefined, __: undefined, contextValue: AppContext) {
       const { req } = contextValue;
-      if (!req.session?.jwt) {
-        throw new GraphQLError("Please login again.");
-      }
-      // TODO: validate jwt token
-      const notifications = await getAllNotificationGroups(2);
+      authenticateGraphQLRoute(req);
+      logger.info(req.currentUser);
+      const notifications = await getAllNotificationGroups(req.currentUser?.id!);
       return {
         user: {
-          id: 2,
-          username: "Dad",
-          email: "dad@test.com",
+          id: req.currentUser?.id,
+          username: req.currentUser?.username,
+          email: req.currentUser?.email,
           createdAt: new Date(),
         },
         notifications,
