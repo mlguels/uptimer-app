@@ -23,7 +23,7 @@ export const notificationSchema = buildSchema(`#graphql
   }
 
   type Query {
-    getUserNotificationGroups(userID: String!): NotificationResponse!
+    getUserNotificationGroups(userId: String!): NotificationResponse!
   }
 
   type Mutation {
