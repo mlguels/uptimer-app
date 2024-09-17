@@ -28,7 +28,7 @@ export const notificationSchema = buildSchema(`#graphql
 
   type Mutation {
     createNotificationGroup(group: Notification!): NotificationResponse!
-    updateNotificationGroup(notificationId: ID!, group : Notification!): NotificationResponse!
+    updateNotificationGroup(notificationId: ID!, group: Notification!): NotificationResponse!
     deleteNotificationGroup(notificationId: ID!): DeleteNotificationResponse!
   }
 `);

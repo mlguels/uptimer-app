@@ -41,7 +41,7 @@ export async function getAllNotificationGroups(userId: number): Promise<INotific
   }
 }
 
-export async function updateNotificationGroup(notificationId: string, data: INotificationDocument): Promise<void> {
+export async function updateNotificationGroup(notificationId: number, data: INotificationDocument): Promise<void> {
   try {
     await NotificationModel.update(data, {
       where: { id: notificationId },
