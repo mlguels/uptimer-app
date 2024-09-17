@@ -2,9 +2,7 @@ import { Model } from "sequelize";
 import { INotificationDocument } from "@app/interfaces/notification.interface";
 import { NotificationModel } from "@app/models/notification.model";
 
-export async function createNotificationGroup(
-  data: INotificationDocument
-): Promise<INotificationDocument> {
+export async function createNotificationGroup(data: INotificationDocument): Promise<INotificationDocument> {
   try {
     const result: Model = await NotificationModel.create(data);
     return result.dataValues;
@@ -13,9 +11,7 @@ export async function createNotificationGroup(
   }
 }
 
-export async function getSingleNotificationGroup(
-  notificationId: string
-): Promise<INotificationDocument> {
+export async function getSingleNotificationGroup(notificationId: string): Promise<INotificationDocument> {
   try {
     const notification: INotificationDocument = (await NotificationModel.findOne({
       raw: true,
@@ -45,10 +41,7 @@ export async function getAllNotificationGroups(userId: number): Promise<INotific
   }
 }
 
-export async function updateNotificationGroup(
-  notificationId: string,
-  data: INotificationDocument
-): Promise<void> {
+export async function updateNotificationGroup(notificationId: number, data: INotificationDocument): Promise<void> {
   try {
     await NotificationModel.update(data, {
       where: { id: notificationId },
@@ -58,7 +51,7 @@ export async function updateNotificationGroup(
   }
 }
 
-export async function deleteNotificationGroup(notificationId: string): Promise<void> {
+export async function deleteNotificationGroup(notificationId: number): Promise<void> {
   try {
     await NotificationModel.destroy({
       where: { id: notificationId },
