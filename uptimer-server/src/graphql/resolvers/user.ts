@@ -3,19 +3,11 @@ import { GraphQLError } from "graphql";
 import { toLower, upperFirst } from "lodash";
 import { sign } from "jsonwebtoken";
 
-import { AppContext } from "@app/server/server";
+import { AppContext } from "@app/interfaces/monitor.interface";
 import { INotificationDocument } from "@app/interfaces/notification.interface";
 import { IUserDocument, IUserResponse } from "@app/interfaces/user.interface";
-import {
-  createNotificationGroup,
-  getAllNotificationGroups,
-} from "@app/services/notification.service";
-import {
-  createNewUser,
-  getUserByProp,
-  getUserBySocialId,
-  getUserByUsernameOrEmail,
-} from "@app/services/user.service";
+import { createNotificationGroup, getAllNotificationGroups } from "@app/services/notification.service";
+import { createNewUser, getUserByProp, getUserBySocialId, getUserByUsernameOrEmail } from "@app/services/user.service";
 import { JWT_TOKEN } from "@app/server/config";
 import { authenticateGraphQLRoute, isEmail } from "@app/utils/utils";
 import { UserModel } from "@app/models/user.model";
@@ -41,11 +33,7 @@ export const UserResolver = {
     },
   },
   Mutation: {
-    async loginUser(
-      _: undefined,
-      args: { username: string; password: string },
-      contextValue: AppContext
-    ) {
+    async loginUser(_: undefined, args: { username: string; password: string }, contextValue: AppContext) {
       const { req } = contextValue;
       const { username, password } = args;
       await UserLoginRules.validate({ username, password }, { abortEarly: false });
@@ -57,10 +45,7 @@ export const UserResolver = {
         throw new GraphQLError("Invalid credentials");
       }
 
-      const passwordsMatch: boolean = await UserModel.prototype.comparePassword(
-        password,
-        existingUser.password!
-      );
+      const passwordsMatch: boolean = await UserModel.prototype.comparePassword(password, existingUser.password!);
 
       if (!passwordsMatch) {
         throw new GraphQLError("Invalid credentials");
@@ -74,10 +59,7 @@ export const UserResolver = {
       const { user } = args;
       await UserRegisterationRules.validate(user, { abortEarly: false });
       const { username, email, password } = user;
-      const checkIfUserExist: IUserDocument | undefined = await getUserByUsernameOrEmail(
-        username!,
-        email!
-      );
+      const checkIfUserExist: IUserDocument | undefined = await getUserByUsernameOrEmail(username!, email!);
       if (checkIfUserExist) {
         const existingUserMessage = `User with username ${username} or email ${email} already exists.`;
         throw new GraphQLError(existingUserMessage);
@@ -96,11 +78,7 @@ export const UserResolver = {
       const { user } = args;
       await UserRegisterationRules.validate(user, { abortEarly: false });
       const { username, email, socialId, type } = user;
-      const checkIfUserExist: IUserDocument | undefined = await getUserBySocialId(
-        socialId!,
-        email!,
-        type!
-      );
+      const checkIfUserExist: IUserDocument | undefined = await getUserBySocialId(socialId!, email!, type!);
 
       if (checkIfUserExist) {
         const response: IUserResponse = await userReturnValue(req, checkIfUserExist, "login");
@@ -133,11 +111,7 @@ export const UserResolver = {
   },
 };
 
-async function userReturnValue(
-  req: Request,
-  result: IUserDocument,
-  type: string
-): Promise<IUserResponse> {
+async function userReturnValue(req: Request, result: IUserDocument, type: string): Promise<IUserResponse> {
   let notifications: INotificationDocument[] = [];
   if (type === "register" && result && result.id && result.email) {
     const notification = await createNotificationGroup({
