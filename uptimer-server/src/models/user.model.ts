@@ -14,48 +14,47 @@ interface UserModelInstanceMethods extends Model {
 
 type UserCreationAttributes = Optional<IUserDocument, "id" | "createdAt">;
 
-const UserModel: ModelDefined<IUserDocument, UserCreationAttributes> & UserModelInstanceMethods =
-  sequelize.define(
-    "users",
-    {
-      username: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      googleId: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      facebookId: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: Date.now,
-      },
+const UserModel: ModelDefined<IUserDocument, UserCreationAttributes> & UserModelInstanceMethods = sequelize.define(
+  "users",
+  {
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    {
-      indexes: [
-        {
-          unique: true,
-          fields: ["email"],
-        },
-        {
-          unique: true,
-          fields: ["username"],
-        },
-      ],
-    }
-  ) as ModelDefined<IUserDocument, UserCreationAttributes> & UserModelInstanceMethods;
+    password: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    facebookId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: Date.now,
+    },
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ["email"],
+      },
+      {
+        unique: true,
+        fields: ["username"],
+      },
+    ],
+  }
+) as ModelDefined<IUserDocument, UserCreationAttributes> & UserModelInstanceMethods;
 
 UserModel.addHook("beforeCreate", async (auth: Model) => {
   if (auth.dataValues.password !== undefined) {
@@ -66,10 +65,7 @@ UserModel.addHook("beforeCreate", async (auth: Model) => {
   }
 });
 
-UserModel.prototype.comparePassword = async function (
-  password: string,
-  hashedPassword: string
-): Promise<boolean> {
+UserModel.prototype.comparePassword = async function (password: string, hashedPassword: string): Promise<boolean> {
   return compare(password, hashedPassword);
 };
 UserModel.prototype.hashPassword = async function (password: string): Promise<string> {
