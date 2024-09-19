@@ -10,3 +10,18 @@ export const createMonitor = async (data: IMonitorDocument): Promise<IMonitorDoc
     throw new Error(error);
   }
 };
+
+export const getAllUserMonitors = async (userId: number): Promise<IMonitorDocument[]> => {
+  try {
+    const monitors: IMonitorDocument[] = (await MonitorModel.findAll({
+      raw: true,
+      where: {
+        userId,
+      },
+      order: [["createdAt", "DESC"]],
+    })) as unknown as IMonitorDocument[];
+    return monitors;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
