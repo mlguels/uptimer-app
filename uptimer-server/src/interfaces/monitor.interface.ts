@@ -5,7 +5,7 @@ import { INotificationDocument } from "./notification.interface";
 export interface IMonitorDocument {
   id?: number;
   monitorId?: number;
-  notificationId?: number;
+  notificationId?: string;
   name: string;
   active: boolean;
   status?: number;
