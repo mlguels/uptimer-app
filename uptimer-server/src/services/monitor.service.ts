@@ -162,3 +162,27 @@ export const updateMonitorStatus = async (
     throw new Error(error);
   }
 };
+
+export const deleteSingleMonitor = async (
+  monitorId: number,
+  userId: number,
+  type: string
+): Promise<IMonitorDocument[]> => {
+  try {
+    await deleteMonitorTypeHeartbeats(monitorId, type);
+    // TODO: Create a method to delete heartbeat monitor
+    await MonitorModel.destroy({
+      where: { id: monitorId },
+    });
+
+    const result: IMonitorDocument[] = await getUserMonitors(userId);
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteMonitorTypeHeartbeats = async (monitorId: number, type: string): Promise<void> => {
+  // TODO: delete heartbeat monitor
+  console.log(monitorId, type);
+};
