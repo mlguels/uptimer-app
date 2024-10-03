@@ -43,7 +43,7 @@ export const monitorSchema = buildSchema(`#graphql
     connection: String
   }
 
-  input NotificationResult {
+  type NotificationResponse {
     id: ID!
     userId: Int!
     groupName: String!
@@ -76,8 +76,8 @@ export const monitorSchema = buildSchema(`#graphql
     lastChanged: String
     port: Int
     uptime: Int
-    heartbeats: [HeartBeat!]!
-    notificationId: Int!
+    heartbeats: [HeartBeatResponse!]!
+    notifications: NotificationResponse
   }
 
   input ToggleMonitor { 
@@ -103,13 +103,13 @@ export const monitorSchema = buildSchema(`#graphql
   type Query {
     getSingleMonitor(monitorId: String!): MonitorResponse
     getUserMonitors(monitorId: String!): MonitorResponse
-    autoRefresh(userId: String!, refresh: Boolean) AutoRefresh
+    autoRefresh(userId: String!, refresh: Boolean): AutoRefresh
   }
 
   type Mutation {
-    createMonitor(monitor: Monitor!) MonitorResponse
-    toggleMonitor(monitor: ToggleMonitor!) MonitorResponse
-    updateMonitor(monitorId: ID!, userId: ID!, monitor: Monitor!) MonitorResponse
-    deleteMonitor(monitorId: ID!, userId: ID!, type: String!) DeleteMonitorResponse
+    createMonitor(monitor: Monitor!): MonitorResponse
+    toggleMonitor(monitor: ToggleMonitor!): MonitorResponse
+    updateMonitor(monitorId: ID!, userId: ID!, monitor: Monitor!): MonitorResponse
+    deleteMonitor(monitorId: ID!, userId: ID!, type: String!): DeleteMonitorResponse
   }
 `);
