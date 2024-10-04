@@ -1,13 +1,15 @@
 import { IAuthPayload } from "@app/interfaces/user.interface";
 import { JWT_TOKEN } from "@app/server/config";
 import { Request } from "express";
+import { GraphQLError } from "graphql";
+import { verify } from "jsonwebtoken";
+
+export const appTimeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 /**
  * Email validator
  * @returns {boolean}
  */
-
-import { GraphQLError } from "graphql";
-import { verify } from "jsonwebtoken";
 
 export const isEmail = (email: string): boolean => {
   const regexExp =
