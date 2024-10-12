@@ -1,5 +1,6 @@
 import { Cron, scheduledJobs } from "croner";
 import { toLower } from "lodash";
+import logger from "@app/server/logger";
 
 interface IJob {
   name: string;
@@ -91,5 +92,22 @@ export const startSingleJob = (name: string, timezone: string, type: number, job
       },
       jobFunc
     );
+  }
+};
+
+/**
+ * Stop single background job
+ * @param name
+ * @param monitorId
+ */
+export const stopSingleBackgroundJob = (name: string, monitorId?: number): void => {
+  const scheduled: Cron | undefined = scheduledJobs.find((job) => toLower(job.name) === toLower(name));
+  if (scheduled) {
+    scheduled.stop();
+    if (monitorId) {
+      logger.info(`Stopped cron job for monitor with ID ${monitorId} and name ${name}`);
+    } else {
+      logger.info(`Stopped cron job for ${name}`);
+    }
   }
 };
