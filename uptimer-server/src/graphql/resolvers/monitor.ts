@@ -1,6 +1,7 @@
 import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
 import logger from "@app/server/logger";
 import { createMonitor, deleteSingleMonitor, toggleMonitor, updateSingleMonitor } from "@app/services/monitor.service";
+import { getSingleNotificationGroup } from "@app/services/notification.service";
 import { startSingleJob, stopSingleBackgroundJob } from "@app/utils/jobs";
 import { appTimeZone, authenticateGraphQLRoute } from "@app/utils/utils";
 
@@ -65,6 +66,15 @@ export const MonitorResolver = {
       return {
         id: monitorId,
       };
+    },
+  },
+  MonitorResult: {
+    lastChanged: (monitor: IMonitorDocument) => JSON.stringify(monitor.lastChanged),
+    responseTime: (monitor: IMonitorDocument) => {
+      return monitor.responseTime ? parseInt(`${monitor.responseTime}`) : monitor.responseTime;
+    },
+    notifications: (monitor: IMonitorDocument) => {
+      return getSingleNotificationGroup(monitor.notificationId!);
     },
   },
 };
