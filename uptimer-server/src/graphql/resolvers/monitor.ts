@@ -1,18 +1,20 @@
-import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
+import { toLower } from "lodash";
+
 import logger from "@app/server/logger";
+import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
+import { getSingleNotificationGroup } from "@app/services/notification.service";
+import { startSingleJob, stopSingleBackgroundJob } from "@app/utils/jobs";
+import { appTimeZone, authenticateGraphQLRoute, resumeMonitors } from "@app/utils/utils";
 import {
   createMonitor,
   deleteSingleMonitor,
   getMonitorById,
   getUserActiveMonitors,
   getUserMonitors,
+  startCreatedMonitors,
   toggleMonitor,
   updateSingleMonitor,
 } from "@app/services/monitor.service";
-import { getSingleNotificationGroup } from "@app/services/notification.service";
-import { startSingleJob, stopSingleBackgroundJob } from "@app/utils/jobs";
-import { appTimeZone, authenticateGraphQLRoute } from "@app/utils/utils";
-import { toLower } from "lodash";
 
 export const MonitorResolver = {
   Query: {
@@ -70,9 +72,7 @@ export const MonitorResolver = {
       const monitor: IMonitorDocument = await createMonitor(body);
 
       if (body.active && monitor?.active) {
-        // TODO: start created monitor
-        logger.info("Start new monitor");
-        startSingleJob(body.name, appTimeZone, 10, () => logger.info("This is called every 10 seconds!"));
+        startCreatedMonitors(monitor, toLower(body.name), body.type);
       }
 
       return {
@@ -89,8 +89,7 @@ export const MonitorResolver = {
       if (!active) {
         stopSingleBackgroundJob(name, monitorId!);
       } else {
-        // TODO: Add a resume method here
-        logger.info("Resume monitor");
+        resumeMonitors(monitorId!);
       }
 
       return {

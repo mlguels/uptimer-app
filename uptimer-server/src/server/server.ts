@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import customFormat from "dayjs/plugin/customParseFormat";
+import { startMonitors } from "@app/utils/utils";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -133,6 +134,7 @@ export default class MonitorServer {
       logger.info(`Server has started with process id ${process.pid}`);
       this.httpServer.listen(SERVER_PORT, () => {
         logger.info(`Server running on port ${SERVER_PORT}`); // Logs that the server is running
+        startMonitors();
       });
     } catch (error) {
       logger.error("error", "startServer() error method:", error); // Logs any errors that occur
