@@ -5,8 +5,9 @@ import { databaseConnection } from "./server/database";
 const initializeApp = (): void => {
   const app: Express = express();
   const monitorServer = new MonitorServer(app);
-  databaseConnection();
-  monitorServer.start();
+  databaseConnection().then(() => {
+    monitorServer.start();
+  });
 };
 
 initializeApp();
