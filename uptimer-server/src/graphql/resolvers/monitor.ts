@@ -1,4 +1,4 @@
-import { toLower } from "lodash";
+import { some, toLower } from "lodash";
 
 import logger from "@app/server/logger";
 import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
@@ -85,7 +85,17 @@ export const MonitorResolver = {
 
       const { monitorId, userId, name, active } = args.monitor!;
       const results: IMonitorDocument[] = await toggleMonitor(monitorId!, userId, active as boolean);
-
+      const hasActiveMonitors: boolean = some(results, (monitor: IMonitorDocument) => monitor.active);
+      /**
+       * Stop auto refresh if there are no active monitors for single user
+       */
+      if (!hasActiveMonitors) {
+        req.session = {
+          ...req.session,
+          enableAutomaticRefresh: false,
+        };
+        stopSingleBackgroundJob(`${toLower(req.currentUser?.username)}`);
+      }
       if (!active) {
         stopSingleBackgroundJob(name, monitorId!);
       } else {
