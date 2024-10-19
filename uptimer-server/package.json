@@ -45,6 +45,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.7",
     "@types/node": "^22.5.1",
+    "@types/ws": "^8.5.12",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
