@@ -1,6 +1,5 @@
 import { some, toLower } from "lodash";
 
-import logger from "@app/server/logger";
 import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { getSingleNotificationGroup } from "@app/services/notification.service";
 import { startSingleJob, stopSingleBackgroundJob } from "@app/utils/jobs";
