@@ -15,6 +15,9 @@ import {
   toggleMonitor,
   updateSingleMonitor,
 } from "@app/services/monitor.service";
+import { PubSub } from "graphql-subscriptions";
+
+export const pubSub: PubSub = new PubSub();
 
 export const MonitorResolver = {
   Query: {
@@ -49,8 +52,12 @@ export const MonitorResolver = {
         };
         startSingleJob(`${toLower(req.currentUser?.username)}`, appTimeZone, 10, async () => {
           const monitors: IMonitorDocument[] = await getUserActiveMonitors(parseInt(userId!));
-          // TODO: publish data to client
-          logger.info(monitors[0].name);
+          pubSub.publish("MONITORS_UPDATED", {
+            monitorsUpdated: {
+              userId: parseInt(userId, 10),
+              monitors,
+            },
+          });
         });
       } else {
         req.session = {
@@ -139,6 +146,11 @@ export const MonitorResolver = {
     },
     notifications: (monitor: IMonitorDocument) => {
       return getSingleNotificationGroup(monitor.notificationId!);
+    },
+  },
+  Subscription: {
+    monitorsUpdated: {
+      subscribe: () => pubSub.asyncIterator(["MONITORS_UPDATED"]),
     },
   },
 };
