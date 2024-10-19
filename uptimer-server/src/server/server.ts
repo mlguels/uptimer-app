@@ -1,28 +1,32 @@
 import http from "http";
 import cors from "cors";
 import cookieSession from "cookie-session";
+import { WebSocketServer, Server as WSServer } from "ws";
 
 import { Express, json, NextFunction, Request, Response, urlencoded } from "express";
+import { GraphQLSchema } from "graphql";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { useServer } from "graphql-ws/lib/use/ws";
 
 import { ApolloServer } from "@apollo/server";
+import { BaseContext } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { ApolloServerPluginLandingPageDisabled } from "@apollo/server/plugin/disabled";
 import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
-import { expressMiddleware } from "@apollo/server/express4";
-import { makeExecutableSchema } from "@graphql-tools/schema";
 
-import { CLIENT_URL, NODE_ENV, PORT, SECRET_KEY_ONE, SECRET_KEY_TWO } from "./config";
-import logger from "./logger";
 import { mergedGQLSchema } from "@app/graphql/schema";
-import { GraphQLSchema } from "graphql";
-import { BaseContext } from "@apollo/server";
 import { resolvers } from "@app/graphql/resolvers";
 import { AppContext } from "@app/interfaces/monitor.interface";
+import { startMonitors } from "@app/utils/utils";
+import { CLIENT_URL, NODE_ENV, PORT, SECRET_KEY_ONE, SECRET_KEY_TWO } from "./config";
+import logger from "./logger";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import customFormat from "dayjs/plugin/customParseFormat";
-import { startMonitors } from "@app/utils/utils";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -32,17 +36,25 @@ export default class MonitorServer {
   private app: Express;
   private httpServer: http.Server;
   private server: ApolloServer;
+  private wsServer: WSServer;
 
   constructor(app: Express) {
     // this stores tje express application instance
     this.app = app;
     // this stores the HTTP server instance created using the express app
     this.httpServer = new http.Server(app);
+    this.wsServer = new WebSocketServer({ server: this.httpServer, path: "/graphql" });
     // this creates the GraphQL schema
     const schema: GraphQLSchema = makeExecutableSchema({
       typeDefs: mergedGQLSchema,
       resolvers,
     });
+    const serverCleanup = useServer(
+      {
+        schema,
+      },
+      this.wsServer
+    );
     // this stores the apollo server instance, which is responsible for handling GraphQL operations
     this.server = new ApolloServer<AppContext | BaseContext>({
       schema, // Assigns the created schema to the apollo server
@@ -50,6 +62,15 @@ export default class MonitorServer {
       // sets up plugins for the apollo server
       plugins: [
         ApolloServerPluginDrainHttpServer({ httpServer: this.httpServer }),
+        {
+          async serverWillStart() {
+            return {
+              async drainServer() {
+                await serverCleanup.dispose();
+              },
+            };
+          },
+        },
         NODE_ENV === "production"
           ? ApolloServerPluginLandingPageDisabled()
           : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
@@ -65,6 +86,7 @@ export default class MonitorServer {
     // You must call the strat() method on the Apollo Server instance before passing the instance to expressMiddleware
     await this.server.start(); // Starts he apollo server
     this.standardMiddleware(this.app); // Applies standard middleware
+    this.webSocketConnection();
     this.startServer(); // Starts the HTTP server
   }
 
@@ -121,6 +143,12 @@ export default class MonitorServer {
   private healthRoute(app: Express): void {
     app.get("/health", (_req: Request, res: Response) => {
       res.status(200).send("Uptimer monitor service is healthy and OK."); // Sends a simple health check response
+    });
+  }
+
+  private webSocketConnection() {
+    this.wsServer.on("connection", () => {
+      console.log("websocket connect");
     });
   }
 
