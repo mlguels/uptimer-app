@@ -3,10 +3,12 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 // import { IEmailLocals } from "@app/interfaces/notification.interface";
 
 import { IMonitorDocument } from "@app/interfaces/monitor.interface";
-import { getMonitorById } from "@app/services/monitor.service";
+import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
 import { encodeBase64 } from "@app/utils/utils";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 import dayjs from "dayjs";
+import { createHttpHeartBeat } from "@app/services/http.service";
+import logger from "@app/server/logger";
 
 class HttpMonitor {
   errorCount: number;
@@ -95,11 +97,37 @@ class HttpMonitor {
         responseDurationTime > responseTime ||
         (contentTypeList.length > 0 && !contentTypeList.includes(response.headers["content-type"]))
       ) {
-        // throw an error
+        this.errorAssertionCheck(monitorData, heartbeatdata);
       } else {
-        // success assertion
+        this.successAssertionCheck(monitorData, heartbeatdata);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async errorAssertionCheck(monitorData: IMonitorDocument, heartbeatdata: IHeartbeat): Promise<void> {
+    this.errorCount += 1;
+    const timestamp = dayjs.utc().valueOf();
+    await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createHttpHeartBeat(heartbeatdata)]);
+    if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+      this.errorCount = 0;
+      this.noSuccessAlert = false;
+      // TODO: send error to email
+    }
+    logger.info(`HTTP heartbeat failed assertions: Monitor ID ${monitorData.id}`);
+  }
+  async successAssertionCheck(monitorData: IMonitorDocument, heartbeatdata: IHeartbeat): Promise<void> {
+    await Promise.all([
+      updateMonitorStatus(monitorData, heartbeatdata.timestamp, "success"),
+      createHttpHeartBeat(heartbeatdata),
+    ]);
+    if (!this.noSuccessAlert) {
+      this.errorCount = 0;
+      this.noSuccessAlert = true;
+      // TODO: send success to email
+    }
+    logger.info(`HTTP heartbeat success Monitor ID ${monitorData.id}`);
   }
 }
 
