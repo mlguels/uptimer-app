@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { MonitorModel } from "@app/models/monitor.model";
 import { getSingleNotificationGroup } from "./notification.service";
+import { httpStatusMonitor } from "./http.service";
+import { toLower } from "lodash";
 
 const HTTP_TYPE = "http";
 const TCP_TYPE = "tcp";
@@ -190,7 +192,7 @@ export const deleteSingleMonitor = async (
 
 export const startCreatedMonitors = (monitor: IMonitorDocument, name: string, type: string): void => {
   if (type === HTTP_TYPE) {
-    console.log("http", monitor.name, name);
+    httpStatusMonitor(monitor!, toLower(name));
   }
   if (type === MONGO_TYPE) {
     console.log("mongodb", monitor.name, name);
