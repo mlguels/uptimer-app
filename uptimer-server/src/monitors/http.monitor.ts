@@ -74,14 +74,21 @@ class HttpMonitor {
           ...(headers ? JSON.parse(headers) : {}),
         },
         maxRedirects: redirects,
+        ...(bodyValue && {
+          data: bodyValue,
+        }),
       };
+
       const response: AxiosResponse = await axios.request(options);
       const responseTime = Date.now() - startTime;
       const heartbeatdata: IHeartbeat = {
         monitorId: monitorId!,
         status: 0,
         code: response.status ?? 0,
-        message: `${response.status} - ${response.statusText}` ?? "Http monitor check successful.",
+        message:
+          response?.status && response?.statusText
+            ? `${response.status} - ${response.statusText}`
+            : "Http monitor check successful.",
         timestamp: dayjs.utc().valueOf(),
         reqHeaders: JSON.stringify(response.headers) ?? "",
         resHeaders: JSON.stringify(response.request.res.rawHeaders) ?? "",
@@ -102,14 +109,15 @@ class HttpMonitor {
         this.successAssertionCheck(monitorData, heartbeatdata);
       }
     } catch (error) {
-      console.log(error);
+      const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
+      this.httpError(monitorId!, startTime, monitorData, error);
     }
   }
 
-  async errorAssertionCheck(monitorData: IMonitorDocument, heartbeatdata: IHeartbeat): Promise<void> {
+  async errorAssertionCheck(monitorData: IMonitorDocument, heartbeatData: IHeartbeat): Promise<void> {
     this.errorCount += 1;
     const timestamp = dayjs.utc().valueOf();
-    await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createHttpHeartBeat(heartbeatdata)]);
+    await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createHttpHeartBeat(heartbeatData)]);
     if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
       this.errorCount = 0;
       this.noSuccessAlert = false;
@@ -128,6 +136,32 @@ class HttpMonitor {
       // TODO: send success to email
     }
     logger.info(`HTTP heartbeat success Monitor ID ${monitorData.id}`);
+  }
+  async httpError(monitorId: number, startTime: number, monitorData: IMonitorDocument, error: any): Promise<void> {
+    logger.info(`HTTP heart beatfailed ${monitorId}`);
+    this.errorCount += 1;
+    const timestamp = dayjs.utc().valueOf();
+    let heartbeatData: IHeartbeat = {
+      monitorId: monitorId!,
+      status: 0,
+      code: error.response.status ?? 500,
+      message:
+        error.response?.status && error.response?.statusText
+          ? `${error.response.status} - ${error.response.statusText}`
+          : "Http monitor check successful.",
+      timestamp,
+      reqHeaders: JSON.stringify(error.response.headers) ?? "",
+      resHeaders: JSON.stringify(error.response.request.res.rawHeaders) ?? "",
+      reqBody: "",
+      resBody: JSON.stringify(error.response.data) ?? "",
+      responseTime: Date.now() - startTime,
+    };
+    await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createHttpHeartBeat(heartbeatData)]);
+    if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+      this.errorCount = 0;
+      this.noSuccessAlert = false;
+      // TODO: send error to email
+    }
   }
 }
 
