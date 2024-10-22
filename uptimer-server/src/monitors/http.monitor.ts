@@ -36,7 +36,7 @@ class HttpMonitor {
       bearerToken,
     } = data;
 
-    let reqTimeout = timeout! * 1000;
+    const reqTimeout = timeout! * 1000;
     const startTime: number = Date.now();
     try {
       const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
@@ -54,7 +54,7 @@ class HttpMonitor {
 
       let bodyValue = null;
       let reqContentType = null;
-      if (body!.length > 0) {
+      if (body && body!.length > 0) {
         try {
           bodyValue = JSON.parse(body!);
           reqContentType = "application/json";
@@ -81,14 +81,11 @@ class HttpMonitor {
 
       const response: AxiosResponse = await axios.request(options);
       const responseTime = Date.now() - startTime;
-      const heartbeatdata: IHeartbeat = {
+      const heartbeatData: IHeartbeat = {
         monitorId: monitorId!,
         status: 0,
         code: response.status ?? 0,
-        message:
-          response?.status && response?.statusText
-            ? `${response.status} - ${response.statusText}`
-            : "Http monitor check successful.",
+        message: response?.status ? `${response.status} - ${response.statusText}` : "Http monitor check successful.",
         timestamp: dayjs.utc().valueOf(),
         reqHeaders: JSON.stringify(response.headers) ?? "",
         resHeaders: JSON.stringify(response.request.res.rawHeaders) ?? "",
@@ -98,17 +95,20 @@ class HttpMonitor {
       };
       const statusList = JSON.parse(monitorData.statusCode!);
       const responseDurationTime = JSON.parse(monitorData.responseTime!);
-      const contentTypeList = monitorData.contentType!.length > 0 ? JSON.parse(monitorData.contentType!) : [];
+      const contentTypeList =
+        monitorData.contentType!.length > 0 ? JSON.parse(JSON.stringify(monitorData.contentType!)) : [];
       if (
         !statusList.includes(response.status) ||
-        responseDurationTime > responseTime ||
+        responseDurationTime < responseTime ||
         (contentTypeList.length > 0 && !contentTypeList.includes(response.headers["content-type"]))
       ) {
-        this.errorAssertionCheck(monitorData, heartbeatdata);
+        heartbeatData.message = "Failed http assertion";
+        this.errorAssertionCheck(monitorData, heartbeatData);
       } else {
-        this.successAssertionCheck(monitorData, heartbeatdata);
+        this.successAssertionCheck(monitorData, heartbeatData);
       }
     } catch (error) {
+      console.log(error);
       const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
       this.httpError(monitorId!, startTime, monitorData, error);
     }
@@ -125,10 +125,10 @@ class HttpMonitor {
     }
     logger.info(`HTTP heartbeat failed assertions: Monitor ID ${monitorData.id}`);
   }
-  async successAssertionCheck(monitorData: IMonitorDocument, heartbeatdata: IHeartbeat): Promise<void> {
+  async successAssertionCheck(monitorData: IMonitorDocument, heartbeatData: IHeartbeat): Promise<void> {
     await Promise.all([
-      updateMonitorStatus(monitorData, heartbeatdata.timestamp, "success"),
-      createHttpHeartBeat(heartbeatdata),
+      updateMonitorStatus(monitorData, heartbeatData.timestamp, "success"),
+      createHttpHeartBeat(heartbeatData),
     ]);
     if (!this.noSuccessAlert) {
       this.errorCount = 0;
@@ -138,22 +138,19 @@ class HttpMonitor {
     logger.info(`HTTP heartbeat success Monitor ID ${monitorData.id}`);
   }
   async httpError(monitorId: number, startTime: number, monitorData: IMonitorDocument, error: any): Promise<void> {
-    logger.info(`HTTP heart beatfailed ${monitorId}`);
+    logger.info(`HTTP heart beatfailed: Monitor ID${monitorId}`);
     this.errorCount += 1;
     const timestamp = dayjs.utc().valueOf();
     let heartbeatData: IHeartbeat = {
       monitorId: monitorId!,
-      status: 0,
-      code: error.response.status ?? 500,
-      message:
-        error.response?.status && error.response?.statusText
-          ? `${error.response.status} - ${error.response.statusText}`
-          : "Http monitor check successful.",
+      status: 1,
+      code: error.response ? error.response.status : 500,
+      message: error.response ? `${error.response.status} - ${error.response.statusText}` : "Http monitor error.",
       timestamp,
-      reqHeaders: JSON.stringify(error.response.headers) ?? "",
-      resHeaders: JSON.stringify(error.response.request.res.rawHeaders) ?? "",
+      reqHeaders: error.response ? JSON.stringify(error.response.headers) : "",
+      resHeaders: error.response ? JSON.stringify(error.response.request.res.rawHeaders) : "",
       reqBody: "",
-      resBody: JSON.stringify(error.response.data) ?? "",
+      resBody: error.response ? JSON.stringify(error.response.data) : "",
       responseTime: Date.now() - startTime,
     };
     await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createHttpHeartBeat(heartbeatData)]);

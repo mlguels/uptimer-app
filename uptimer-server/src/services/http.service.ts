@@ -6,6 +6,7 @@ import { HttpModel } from "@app/models/http.model";
 import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { startSingleJob } from "@app/utils/jobs";
 import { appTimeZone } from "@app/utils/utils";
+import { httpMonitor } from "@app/monitors/http.monitor";
 
 export const createHttpHeartBeat = async (data: IHeartbeat): Promise<IHeartbeat> => {
   try {
@@ -54,5 +55,5 @@ export const httpStatusMonitor = (monitor: IMonitorDocument, name: string): void
     redirects: monitor.redirects,
     bearerToken: monitor.bearerToken,
   } as IMonitorDocument;
-  startSingleJob(name, appTimeZone, monitor.frequency, async () => console.log(httpMonitorData));
+  startSingleJob(name, appTimeZone, monitor.frequency, async () => httpMonitor.start(httpMonitorData));
 };
