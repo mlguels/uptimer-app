@@ -4,8 +4,9 @@ import dayjs from "dayjs";
 import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { MonitorModel } from "@app/models/monitor.model";
 import { getSingleNotificationGroup } from "./notification.service";
-import { httpStatusMonitor } from "./http.service";
+import { getHttpHeartBeatsByDuration, httpStatusMonitor } from "./http.service";
 import { toLower } from "lodash";
+import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 
 const HTTP_TYPE = "http";
 const TCP_TYPE = "tcp";
@@ -188,6 +189,25 @@ export const deleteSingleMonitor = async (
   } catch (error) {
     throw new Error(error);
   }
+};
+
+export const getHeartbeats = async (type: string, monitorId: number, duration: number): Promise<IHeartbeat[]> => {
+  let heartbeats: IHeartbeat[] = [];
+
+  if (type === HTTP_TYPE) {
+    heartbeats = await getHttpHeartBeatsByDuration(monitorId, duration);
+  }
+  if (type === MONGO_TYPE) {
+    console.log("mongodb");
+  }
+  if (type === TCP_TYPE) {
+    console.log("tcp");
+  }
+  if (type === REDIS_TYPE) {
+    console.log("redis");
+  }
+
+  return heartbeats;
 };
 
 export const startCreatedMonitors = (monitor: IMonitorDocument, name: string, type: string): void => {
