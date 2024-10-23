@@ -62,11 +62,22 @@ export const getUserMonitors = async (userId: number, active?: boolean): Promise
  */
 export const getUserActiveMonitors = async (userId: number): Promise<IMonitorDocument[]> => {
   try {
+    let heartbeats: IHeartbeat[] = [];
+    const updatedMonitors: IMonitorDocument[] = [];
     const monitors: IMonitorDocument[] = await getUserMonitors(userId, true);
-    for (const monitor of monitors) {
-      console.log(monitor);
+    for (let monitor of monitors) {
+      const group = await getSingleNotificationGroup(monitor.notificationId!);
+      heartbeats = await getHeartbeats(monitor.type, monitor.id!, 24);
+      // TODO: calc uptime
+      monitor = {
+        ...monitor,
+        uptime: 0,
+        heartbeats: heartbeats.slice(0, 16),
+        notifications: group,
+      };
+      updatedMonitors.push(monitor);
     }
-    return monitors;
+    return updatedMonitors;
   } catch (error) {
     throw new Error(error);
   }
