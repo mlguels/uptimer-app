@@ -7,6 +7,7 @@ import { appTimeZone, authenticateGraphQLRoute, resumeMonitors } from "@app/util
 import {
   createMonitor,
   deleteSingleMonitor,
+  getHeartbeats,
   getMonitorById,
   getUserActiveMonitors,
   getUserMonitors,
@@ -145,6 +146,10 @@ export const MonitorResolver = {
     },
     notifications: (monitor: IMonitorDocument) => {
       return getSingleNotificationGroup(monitor.notificationId!);
+    },
+    heartbeats: async (monitor: IMonitorDocument) => {
+      const heartbeats = await getHeartbeats(monitor.type, monitor.id!, 24);
+      return heartbeats.slice(0, 16);
     },
   },
   Subscription: {
