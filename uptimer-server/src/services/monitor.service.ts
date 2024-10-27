@@ -7,6 +7,7 @@ import { getSingleNotificationGroup } from "./notification.service";
 import { getHttpHeartBeatsByDuration, httpStatusMonitor } from "./http.service";
 import { toLower } from "lodash";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
+import { uptimePercentage } from "@app/utils/utils";
 
 const HTTP_TYPE = "http";
 const TCP_TYPE = "tcp";
@@ -68,10 +69,10 @@ export const getUserActiveMonitors = async (userId: number): Promise<IMonitorDoc
     for (let monitor of monitors) {
       const group = await getSingleNotificationGroup(monitor.notificationId!);
       heartbeats = await getHeartbeats(monitor.type, monitor.id!, 24);
-      // TODO: calc uptime
+      const uptime = uptimePercentage(heartbeats);
       monitor = {
         ...monitor,
-        uptime: 0,
+        uptime,
         heartbeats: heartbeats.slice(0, 16),
         notifications: group,
       };

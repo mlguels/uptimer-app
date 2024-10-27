@@ -3,7 +3,7 @@ import { some, toLower } from "lodash";
 import { AppContext, IMonitorArgs, IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { getSingleNotificationGroup } from "@app/services/notification.service";
 import { startSingleJob, stopSingleBackgroundJob } from "@app/utils/jobs";
-import { appTimeZone, authenticateGraphQLRoute, resumeMonitors } from "@app/utils/utils";
+import { appTimeZone, authenticateGraphQLRoute, resumeMonitors, uptimePercentage } from "@app/utils/utils";
 import {
   createMonitor,
   deleteSingleMonitor,
@@ -16,6 +16,7 @@ import {
   updateSingleMonitor,
 } from "@app/services/monitor.service";
 import { PubSub } from "graphql-subscriptions";
+import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 
 export const pubSub: PubSub = new PubSub();
 
@@ -150,6 +151,10 @@ export const MonitorResolver = {
     heartbeats: async (monitor: IMonitorDocument) => {
       const heartbeats = await getHeartbeats(monitor.type, monitor.id!, 24);
       return heartbeats.slice(0, 16);
+    },
+    uptime: async (monitor: IMonitorDocument) => {
+      const heartbeats: IHeartbeat[] = await getHeartbeats(monitor.type, monitor.id!, 24);
+      return uptimePercentage(heartbeats);
     },
   },
   Subscription: {
