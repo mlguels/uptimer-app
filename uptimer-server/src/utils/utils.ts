@@ -15,6 +15,7 @@ import {
 import { pubSub } from "@app/graphql/resolvers/monitor";
 import { startSingleJob } from "./jobs";
 import logger from "@app/server/logger";
+import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 
 export const appTimeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -106,6 +107,15 @@ export const enableAutoRefreshJob = (cookies: string): void => {
 
 export const encodeBase64 = (user: string, pass: string): string => {
   return Buffer.from(`${user || ""}:${pass || ""}`).toString("base64");
+};
+
+export const uptimePercentage = (heartbeats: IHeartbeat[]): number => {
+  if (!heartbeats) {
+    return 0;
+  }
+  const totalHeartbeats: number = heartbeats.length;
+  const downtimeHeartbeats: number = heartbeats.filter((heartbeat: IHeartbeat) => heartbeat.status === 1).length;
+  return Math.round(((totalHeartbeats - downtimeHeartbeats) / totalHeartbeats) * 100) || 0;
 };
 
 const getCookies = (cookie: string): Record<string, string> => {
