@@ -9,6 +9,8 @@ import { toLower } from "lodash";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 import { uptimePercentage } from "@app/utils/utils";
 import { HttpModel } from "@app/models/http.model";
+import { getMongoHeartBeatsByDuration, mongoStatusMonitor } from "./mongo.service";
+import { MongoModel } from "@app/models/mongo.model";
 
 const HTTP_TYPE = "http";
 const TCP_TYPE = "tcp";
@@ -211,7 +213,7 @@ export const getHeartbeats = async (type: string, monitorId: number, duration: n
     heartbeats = await getHttpHeartBeatsByDuration(monitorId, duration);
   }
   if (type === MONGO_TYPE) {
-    console.log("mongodb");
+    heartbeats = await getMongoHeartBeatsByDuration(monitorId, duration);
   }
   if (type === TCP_TYPE) {
     console.log("tcp");
@@ -228,7 +230,7 @@ export const startCreatedMonitors = (monitor: IMonitorDocument, name: string, ty
     httpStatusMonitor(monitor!, toLower(name));
   }
   if (type === MONGO_TYPE) {
-    console.log("mongodb", monitor.name, name);
+    mongoStatusMonitor(monitor!, toLower(name));
   }
   if (type === TCP_TYPE) {
     console.log("tcp", monitor.name, name);
@@ -240,10 +242,13 @@ export const startCreatedMonitors = (monitor: IMonitorDocument, name: string, ty
 
 const deleteMonitorTypeHeartbeats = async (monitorId: number, type: string): Promise<void> => {
   let model = null;
+
   if (type === HTTP_TYPE) {
     model = HttpModel;
   }
-
+  if (type === MONGO_TYPE) {
+    model = MongoModel;
+  }
   if (model !== null) {
     await model.destroy({
       where: { monitorId },

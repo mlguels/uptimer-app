@@ -5,6 +5,7 @@ import logger from "@app/server/logger";
 import { IMonitorDocument, IMonitorResponse } from "@app/interfaces/monitor.interface";
 import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
+import { createMongoHeartBeat } from "@app/services/mongo.service";
 // import { IEmailLocals } from "@app/interfaces/notification.interface";
 
 class MongoMonitor {
