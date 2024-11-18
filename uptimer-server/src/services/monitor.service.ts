@@ -11,6 +11,7 @@ import { uptimePercentage } from "@app/utils/utils";
 import { HttpModel } from "@app/models/http.model";
 import { getMongoHeartBeatsByDuration, mongoStatusMonitor } from "./mongo.service";
 import { MongoModel } from "@app/models/mongo.model";
+import { getRedisHeartBeatsByDuration, redisStatusMonitor } from "./redis.service";
 
 const HTTP_TYPE = "http";
 const TCP_TYPE = "tcp";
@@ -219,7 +220,7 @@ export const getHeartbeats = async (type: string, monitorId: number, duration: n
     console.log("tcp");
   }
   if (type === REDIS_TYPE) {
-    console.log("redis");
+    heartbeats = await getRedisHeartBeatsByDuration(monitorId, duration);
   }
 
   return heartbeats;
@@ -236,7 +237,7 @@ export const startCreatedMonitors = (monitor: IMonitorDocument, name: string, ty
     console.log("tcp", monitor.name, name);
   }
   if (type === REDIS_TYPE) {
-    console.log("redis", monitor.name, name);
+    redisStatusMonitor(monitor!, toLower(name));
   }
 };
 
