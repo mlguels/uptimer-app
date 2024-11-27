@@ -6,6 +6,7 @@ import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { startSingleJob } from "@app/utils/jobs";
 import { appTimeZone } from "@app/utils/utils";
 import { RedisModel } from "@app/models/redis.model";
+import { redisMonitor } from "@app/monitors/redis.monitor";
 
 export const createRedisHeartBeat = async (data: IHeartbeat): Promise<IHeartbeat> => {
   try {
@@ -45,5 +46,5 @@ export const redisStatusMonitor = (monitor: IMonitorDocument, name: string): voi
     monitorId: monitor.id,
     url: monitor.url,
   } as IMonitorDocument;
-  startSingleJob(name, appTimeZone, monitor.frequency, async () => console.log(redisMonitorData));
+  startSingleJob(name, appTimeZone, monitor.frequency, async () => redisMonitor.start(redisMonitorData));
 };

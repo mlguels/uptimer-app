@@ -1,0 +1,65 @@
+import { IMonitorDocument, IMonitorResponse } from "@app/interfaces/monitor.interface";
+import { redisPing } from "./monitors";
+import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
+import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
+import dayjs from "dayjs";
+import { createRedisHeartBeat } from "@app/services/redis.service";
+import logger from "@app/server/logger";
+
+class RedisMonitor {
+  errorCount: number;
+  noSuccessAlert: boolean;
+
+  constructor() {
+    this.errorCount = 0;
+    this.noSuccessAlert = true;
+  }
+
+  async start(data: IMonitorDocument) {
+    const { monitorId, url } = data;
+
+    try {
+      const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
+      const response: IMonitorResponse = await redisPing(url!);
+    } catch (error) {}
+  }
+
+  async assertionCheck(response: IMonitorResponse, monitorData: IMonitorDocument) {
+    const timestamp = dayjs.utc().valueOf();
+    let heartbeatData: IHeartbeat = {
+      monitorId: monitorData.id!,
+      status: 0,
+      code: response.code,
+      message: response.message,
+      timestamp,
+      responseTime: response.responseTime,
+      connection: response.status,
+    };
+    if (monitorData.connection !== response.status) {
+      this.errorCount += 1;
+      heartbeatData = {
+        ...heartbeatData,
+        status: 1,
+        message: "Failed redis response assertion",
+      };
+      await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createRedisHeartBeat(heartbeatData)]);
+      logger.info(`Redis heartbeat failed assertions: Monitor ID ${monitorData.id}`);
+      if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+        this.errorCount = 0;
+        this.noSuccessAlert = false;
+      } else {
+        await Promise.all([
+          updateMonitorStatus(monitorData, timestamp, "success"),
+          createRedisHeartBeat(heartbeatData),
+        ]);
+        logger.info(`Redis heartbeat success: Monitor ID ${monitorData.id}`);
+        if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+          this.errorCount = 0;
+          this.noSuccessAlert = true;
+        }
+      }
+    }
+  }
+}
+
+export const redisMonitor: RedisMonitor = new RedisMonitor();
