@@ -81,7 +81,7 @@ class HttpMonitor {
 
       const response: AxiosResponse = await axios.request(options);
       const responseTime = Date.now() - startTime;
-      const heartbeatData: IHeartbeat = {
+      let heartbeatData: IHeartbeat = {
         monitorId: monitorId!,
         status: 0,
         code: response.status ?? 0,
@@ -102,7 +102,11 @@ class HttpMonitor {
         responseDurationTime < responseTime ||
         (contentTypeList.length > 0 && !contentTypeList.includes(response.headers["content-type"]))
       ) {
-        heartbeatData.message = "Failed http assertion";
+        heartbeatData = {
+          ...heartbeatData,
+          status: 1,
+          message: "Failed http assertion",
+        };
         this.errorAssertionCheck(monitorData, heartbeatData);
       } else {
         this.successAssertionCheck(monitorData, heartbeatData);
