@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import dayjs from "dayjs";
 
 // import { IEmailLocals } from "@app/interfaces/notification.interface";
 
@@ -6,7 +7,6 @@ import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
 import { encodeBase64 } from "@app/utils/utils";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
-import dayjs from "dayjs";
 import { createHttpHeartBeat } from "@app/services/http.service";
 import logger from "@app/server/logger";
 
