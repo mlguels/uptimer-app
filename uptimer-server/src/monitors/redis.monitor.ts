@@ -22,7 +22,11 @@ class RedisMonitor {
     try {
       const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
       const response: IMonitorResponse = await redisPing(url!);
-    } catch (error) {}
+      this.assertionCheck(response, monitorData);
+    } catch (error) {
+      const monitorData: IMonitorDocument = await getMonitorById(monitorId!);
+      this.redisError(monitorData, error);
+    }
   }
 
   async assertionCheck(response: IMonitorResponse, monitorData: IMonitorDocument) {
@@ -60,6 +64,27 @@ class RedisMonitor {
           // Send email here
         }
       }
+    }
+  }
+
+  async redisError(monitorData: IMonitorDocument, error: IMonitorResponse) {
+    this.errorCount += 1;
+    const timestamp = dayjs.utc().valueOf();
+    const heartbeatData: IHeartbeat = {
+      monitorId: monitorData.id!,
+      status: 1,
+      code: error.code,
+      message: error.message ?? "Redis heartbeat failed.",
+      timestamp,
+      responseTime: error.responseTime,
+      connection: error.status,
+    };
+    await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createRedisHeartBeat(heartbeatData)]);
+    logger.info(`Redis heartbeat failure ${monitorData.id}`);
+    if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+      this.errorCount = 0;
+      this.noSuccessAlert = true;
+      // Send email here
     }
   }
 }
