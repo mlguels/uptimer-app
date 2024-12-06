@@ -1,10 +1,11 @@
-import { IMonitorDocument, IMonitorResponse } from "@app/interfaces/monitor.interface";
+import dayjs from "dayjs";
 import { redisPing } from "./monitors";
+
+import logger from "@app/server/logger";
+import { IMonitorDocument, IMonitorResponse } from "@app/interfaces/monitor.interface";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
-import dayjs from "dayjs";
 import { createRedisHeartBeat } from "@app/services/redis.service";
-import logger from "@app/server/logger";
 
 class RedisMonitor {
   errorCount: number;
@@ -53,9 +54,10 @@ class RedisMonitor {
           createRedisHeartBeat(heartbeatData),
         ]);
         logger.info(`Redis heartbeat success: Monitor ID ${monitorData.id}`);
-        if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+        if (!this.noSuccessAlert) {
           this.errorCount = 0;
           this.noSuccessAlert = true;
+          // Send email here
         }
       }
     }
