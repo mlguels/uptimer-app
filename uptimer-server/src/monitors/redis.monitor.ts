@@ -46,6 +46,7 @@ class RedisMonitor {
         ...heartbeatData,
         status: 1,
         message: "Failed redis response assertion",
+        code: 500,
       };
       await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createRedisHeartBeat(heartbeatData)]);
       logger.info(`Redis heartbeat failed assertions: Monitor ID ${monitorData.id}`);
@@ -74,7 +75,7 @@ class RedisMonitor {
       monitorId: monitorData.id!,
       status: 1,
       code: error.code,
-      message: error.message ?? "Redis heartbeat failed.",
+      message: error && error.message ? error.message : "Redis heartbeat failed.",
       timestamp,
       responseTime: error.responseTime,
       connection: error.status,
