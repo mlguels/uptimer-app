@@ -81,7 +81,7 @@ class RedisMonitor {
       connection: error.status,
     };
     await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createRedisHeartBeat(heartbeatData)]);
-    logger.info(`Redis heartbeat failure ${monitorData.id}`);
+    logger.info(`Redis heartbeat failed: Monitor ID ${monitorData.id}`);
     if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
       this.errorCount = 0;
       this.noSuccessAlert = true;
