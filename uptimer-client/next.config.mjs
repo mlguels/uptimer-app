@@ -2,7 +2,12 @@
 const nextConfig = {
   distDir: "build",
   images: {
-    domains: ["i.ibb.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
 };
 
