@@ -8,7 +8,7 @@ import { FaTv } from "react-icons/fa";
 import { RxHamburgerMenu } from "react-icons/rx";
 
 const IndexHeader: FC = (): ReactElement => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
