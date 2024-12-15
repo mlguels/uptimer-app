@@ -1,64 +1,56 @@
+"use client";
+
 import Link from "next/link";
-import React, { FC, ReactElement } from "react";
-import { FaTv, FaAlignJustify, FaTimes } from "react-icons/fa";
+import React, { FC, ReactElement, useState } from "react";
 import clsx from "clsx";
 
+import { FaTv } from "react-icons/fa";
+import { RxHamburgerMenu } from "react-icons/rx";
+
 const IndexHeader: FC = (): ReactElement => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   return (
     <div className="relative z-[120] w-full border-b bg-white shadow-2xl shadow-gray-600/5 backdrop-blur dark:shadow-none">
       <div className="m-auto px-6 xl:container md:px-12 lg:px-6">
-        <div className="relative py-4 flex flex-wrap items-center justify-between gap-6 md:gap-0">
-          <div className="flex w-full gap-x-4 lg:w-6/12">
-            <div className="w-full flex justify-between items-center">
-              <Link
-                href="/"
-                className="relative z-10 flex items-center gap-2 cursor-pointer justify-center self-center"
-              >
-                <FaTv />
-                Uptimer
-              </Link>
-              <label htmlFor="hbr" className="peer-checked:hamburger relative z-20 block cursor-pointer lg:hidden">
-                <div className="space-y-2"></div>
-              </label>
-            </div>
-          </div>
+        <div className="relative py-4 flex items-center justify-between gap-6">
+          {/* Logo Section */}
+          <Link href="/" className="relative z-10 flex items-center gap-2 cursor-pointer text-green-500">
+            <FaTv className="w-10" />
+            <h3 className="text-2xl font-bold text-green-500">Uptimer</h3>
+          </Link>
+
+          {/* Hamburger Menu */}
+          <button onClick={toggleMenu} className="lg:hidden z-20 relative block p-2 text-green-500 focus:outline-none">
+            <RxHamburgerMenu className="w-6 h-6" />
+          </button>
+
+          {/* Navigation Menu */}
           <div
             className={clsx(
-              "navmenu w-full cursor-pointer z-50 flex-wrap items-center justify-end space-y-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl lg:m-0 lg:flex lg:w-6/12 lg:space-y-0 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
-              // {
-              //   "flex top-[64px] absolute": menuOpen,
-              //   hidden: !menuOpen,
-              // }
+              "absolute top-full right-0 mt-2 lg:mt-0 lg:static lg:flex lg:w-auto lg:space-x-6 transition-transform duration-300 ease-in-out",
+              isMenuOpen ? "flex flex-col w-full bg-white p-4 shadow-lg" : "hidden lg:flex"
             )}
           >
-            <div className="text-[#74767e] lg:pr-4 w-full lg:w-auto">
-              <ul className="flex flex-col lg:flex-row gap-4 text-base font-medium w-full lg:w-auto">
-                <li
-                  className={clsx(
-                    "z-50 flex cursor-pointer items-center relative h-9 justify-center rounded-full bg-green-500 text-white font-bold sm:px-6 hover:bg-green-400"
-                    // {
-                    //   "ml-auto": !menuOpen,
-                    // }
-                  )}
+            <ul className="flex flex-col lg:flex-row gap-4 text-base font-medium text-center lg:text-right">
+              <li>
+                <Link
+                  href="/login"
+                  className="block w-full py-2 px-4 rounded-lg bg-green-500 text-white font-bold hover:bg-green-400"
                 >
-                  <Link href="/login" className="z-50 mx-5">
-                    Login
-                  </Link>
-                </li>
-                <li
-                  className={clsx(
-                    "z-50 flex cursor-pointer items-center relative h-9 justify-center rounded-full bg-green-500 text-white font-bold sm:px-6 hover:bg-green-400"
-                    // {
-                    //   "ml-auto": !menuOpen,
-                    // }
-                  )}
+                  Login
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/create-account"
+                  className="block w-full py-2 px-4 rounded-lg bg-green-500 text-white font-bold hover:bg-green-400"
                 >
-                  <Link href="/create-account" className="z-50">
-                    Create an Account
-                  </Link>
-                </li>
-              </ul>
-            </div>
+                  Create an Account
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
