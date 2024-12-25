@@ -82,7 +82,7 @@ class TcpMonitor {
     };
     await Promise.all([updateMonitorStatus(monitorData, timestamp, "failure"), createTcpHeartBeat(heartbeatData)]);
     logger.info(`TCP heartbeat failed: Monitor ID ${monitorData.id}`);
-    if (monitorData.alertThreshold > 0 && this.errorCount > monitorData.alertThreshold) {
+    if (!this.noSuccessAlert) {
       this.errorCount = 0;
       this.noSuccessAlert = true;
       // Send email here
