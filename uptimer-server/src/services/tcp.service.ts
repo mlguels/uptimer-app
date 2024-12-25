@@ -6,6 +6,7 @@ import { IMonitorDocument } from "@app/interfaces/monitor.interface";
 import { startSingleJob } from "@app/utils/jobs";
 import { appTimeZone } from "@app/utils/utils";
 import { TcpModel } from "@app/models/tcp.model";
+import { tcpMonitor } from "@app/monitors/tcp.monitor";
 
 export const createTcpHeartBeat = async (data: IHeartbeat): Promise<IHeartbeat> => {
   try {
@@ -47,5 +48,5 @@ export const tcpStatusMonitor = (monitor: IMonitorDocument, name: string): void 
     port: monitor.port,
     timeout: monitor.timeout,
   } as IMonitorDocument;
-  startSingleJob(name, appTimeZone, monitor.frequency, async () => console.log(tcpMonitorData));
+  startSingleJob(name, appTimeZone, monitor.frequency, async () => tcpMonitor.start(tcpMonitorData));
 };
