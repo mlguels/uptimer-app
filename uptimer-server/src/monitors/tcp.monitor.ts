@@ -5,7 +5,6 @@ import logger from "@app/server/logger";
 import { IMonitorDocument, IMonitorResponse } from "@app/interfaces/monitor.interface";
 import { IHeartbeat } from "@app/interfaces/heartbeat.interface";
 import { getMonitorById, updateMonitorStatus } from "@app/services/monitor.service";
-import { createRedisHeartBeat } from "@app/services/redis.service";
 import { createTcpHeartBeat } from "@app/services/tcp.service";
 
 class TcpMonitor {

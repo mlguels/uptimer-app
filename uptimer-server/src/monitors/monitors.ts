@@ -98,7 +98,7 @@ export const tcpPing = async (hostname: string, port: number, timeout: number): 
     const options = {
       address: hostname || "127.0.0.1",
       port: port || 80,
-      timeout: timeout * 1000 || 1000,
+      timeout: timeout || 1000,
     };
 
     socket.setTimeout(options.timeout, () => {
