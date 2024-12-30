@@ -1,3 +1,5 @@
+"use client";
+
 import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject, split } from "@apollo/client";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { CachePersistor, LocalStorageWrapper } from "apollo3-cache-persist";
