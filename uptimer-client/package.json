@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.12.4",
+    "apollo3-cache-persist": "^0.15.0",
     "clsx": "^2.1.1",
     "graphql": "^16.10.0",
     "graphql-ws": "^5.16.0",

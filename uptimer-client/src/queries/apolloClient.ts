@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject, split } from "@apollo/client";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { CachePersistor, LocalStorageWrapper } from "apollo3-cache-persist";
 import { Kind, OperationTypeNode } from "graphql";
 import { createClient } from "graphql-ws";
 
@@ -23,6 +24,19 @@ const wsLink = new GraphQLWsLink(
 );
 
 const cache: InMemoryCache = new InMemoryCache();
+let apolloPersister: CachePersistor<NormalizedCacheObject> | null = null;
+
+const initPersistorCache = async (): Promise<void> => {
+  apolloPersister = new CachePersistor({
+    cache,
+    storage: new LocalStorageWrapper(window.localStorage),
+    debug: false,
+    trigger: "write",
+  });
+  await apolloPersister.restore();
+};
+
+initPersistorCache();
 
 const apolloClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   link: split(isSubscription, wsLink, httpLink),
@@ -35,4 +49,4 @@ function isSubscription({ query }: { query: any }): boolean {
   return definition.kind === Kind.OPERATION_DEFINITION && definition.operation === OperationTypeNode.SUBSCRIPTION;
 }
 
-export { apolloClient };
+export { apolloClient, apolloPersister };
