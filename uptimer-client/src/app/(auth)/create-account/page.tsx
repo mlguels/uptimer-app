@@ -1,19 +1,25 @@
-import { FC, Fragment, ReactElement } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import PageLoader from "next/dist/client/page-loader";
+'use client';
 
-import Button from "@/components/Button";
+import { FC, Fragment, ReactElement } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import PageLoader from 'next/dist/client/page-loader';
 
-import TextInput from "@/components/TextInput";
-import { FaEyeSlash, FaEye, FaGoogle, FaFacebookF } from "react-icons/fa";
-import clsx from "clsx";
-import exp from "constants";
+import Button from '@/components/Button';
+
+import TextInput from '@/components/TextInput';
+import { FaEyeSlash, FaEye, FaGoogle, FaFacebookF } from 'react-icons/fa';
+import { registerSchema } from '../validations/auth';
 
 const Register: FC = (): ReactElement => {
+  const onSubmit = (formData: FormData) => {
+    console.log(Object.fromEntries(formData));
+    const schema = registerSchema.safeParse(Object.fromEntries(formData));
+    console.log(schema);
+  };
   return (
     <div className="relative flex flex-col h-screen mx-auto w-11/12 max-w-md rounded-lg bg-white md:w-2/3">
-      <form>
+      <form action={onSubmit}>
         <div className="mt-12 w-full px-5">
           <div className="mb-5 flex flex-col justify-between text-gray-600">
             <Link href="/" className="w-24 flex mx-auto mb-4 cursor-pointer">
@@ -46,7 +52,10 @@ const Register: FC = (): ReactElement => {
             />
           </Fragment>
           <Fragment>
-            <label htmlFor="email" className="text-sm font-bold leading-tight tracking-normal text-gray-800">
+            <label
+              htmlFor="email"
+              className="text-sm font-bold leading-tight tracking-normal text-gray-800"
+            >
               Email
             </label>
             <TextInput
@@ -66,7 +75,7 @@ const Register: FC = (): ReactElement => {
             </label>
             <div className="relative mb-2 mt-2">
               <div className="absolute right-0 flex h-full cursor-pointer items-center pr-3 text-gray-600">
-                {"password" === "password" ? (
+                {'password' === 'password' ? (
                   <FaEyeSlash className="icon icon-tabler icon-tabler-info-circle" />
                 ) : (
                   <FaEye className="icon icon-tabler icon-tabler-info-circle" />

@@ -15,20 +15,29 @@ const Index: FC = (): ReactElement => {
     {
       icon: <FaCheckCircle className="text-green-500" />,
       title: "Real-time Monitoring",
-      description: "Monitor service uptime in real-time and get instant notifications for downtime.",
+      description:
+        "Monitor service uptime in real-time and get instant notifications for downtime.",
     },
     {
       icon: <FaCheckCircle className="text-green-500" />,
       title: "Easy Integration",
-      description: "Integrate seamlessly with your existing tools and workflows.",
+      description:
+        "Integrate seamlessly with your existing tools and workflows.",
     },
     {
       icon: <FaExclamationCircle className="text-red-500" />,
       title: "Alerting",
-      description: "Get instant notification of potential issues before they impact your users.",
+      description:
+        "Get instant notification of potential issues before they impact your users.",
     },
   ];
-  const monitors: string[] = ["HTTP/HTTPS", "TCP", "MONGODB", "REDIS", "SSL/TLS"];
+  const monitors: string[] = [
+    "HTTP/HTTPS",
+    "TCP",
+    "MONGODB",
+    "REDIS",
+    "SSL/TLS",
+  ];
 
   return (
     <>
@@ -39,11 +48,14 @@ const Index: FC = (): ReactElement => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h1 className="text-3xl font-bold mb-4">
-                  The best <strong className="font-bold text-green-400">Uptime</strong> monitor service.
+                  The best{" "}
+                  <strong className="font-bold text-green-400">Uptime</strong>{" "}
+                  monitor service.
                 </h1>
                 <p className="text-gray-700 mb-4">
-                  Our Uptime monitoring service helps you track uptime of your services in real-time, ensuring high
-                  availability and reliability for your applications.
+                  Our Uptime monitoring service helps you track uptime of your
+                  services in real-time, ensuring high availability and
+                  reliability for your applications.
                 </p>
                 <Link
                   href="/create-account"
@@ -73,7 +85,11 @@ const Index: FC = (): ReactElement => {
             <Section title="Monitors">
               <div className="grid grid-cols-1 gap-4">
                 {monitors.map((monitor, index) => (
-                  <Feature key={index} icon={<FaCheckCircle className="text-green-500" />} title={monitor} />
+                  <Feature
+                    key={index}
+                    icon={<FaCheckCircle className="text-green-500" />}
+                    title={monitor}
+                  />
                 ))}
               </div>
             </Section>
@@ -95,7 +111,10 @@ const Feature: FC<IFeature> = ({ icon, title, description }) => (
   </div>
 );
 
-const Section: FC<{ title: string; children: ReactNode }> = ({ title, children }): ReactElement => (
+const Section: FC<{ title: string; children: ReactNode }> = ({
+  title,
+  children,
+}): ReactElement => (
   <div className="mt-8">
     <h2 className="text-2xl font-bold mb-4">{title}</h2>
     {children}
@@ -105,7 +124,10 @@ const Section: FC<{ title: string; children: ReactNode }> = ({ title, children }
 const Footer: FC = (): ReactElement => (
   <footer className="bg-gray-900 text-white py-8 mt-auto">
     <div className="max-w-7xl mx-auto px-4">
-      <p className="text-center">&copy; {new Date().getFullYear()} Uptimer Dashboard. All rights reserved.</p>
+      <p className="text-center">
+        &copy; {new Date().getFullYear()} Uptimer Dashboard. All rights
+        reserved.
+      </p>
     </div>
   </footer>
 );
