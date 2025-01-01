@@ -1,25 +1,19 @@
-'use client';
-
 import { FC, Fragment, ReactElement } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import PageLoader from 'next/dist/client/page-loader';
 
 import Button from '@/components/Button';
 
 import TextInput from '@/components/TextInput';
 import { FaEyeSlash, FaEye, FaGoogle, FaFacebookF } from 'react-icons/fa';
-import { registerSchema } from '../validations/auth';
+import { useRegister } from './useRegister';
 
 const Register: FC = (): ReactElement => {
-  const onSubmit = (formData: FormData) => {
-    console.log(Object.fromEntries(formData));
-    const schema = registerSchema.safeParse(Object.fromEntries(formData));
-    console.log(schema);
-  };
+  const { onRegisterSubmit } = useRegister();
+
   return (
     <div className="relative flex flex-col h-screen mx-auto w-11/12 max-w-md rounded-lg bg-white md:w-2/3">
-      <form action={onSubmit}>
+      <form>
         <div className="mt-12 w-full px-5">
           <div className="mb-5 flex flex-col justify-between text-gray-600">
             <Link href="/" className="w-24 flex mx-auto mb-4 cursor-pointer">
